@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সার্ভার খুঁজছে...</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #EFEFEF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 600px;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 25px;
+            background-color: #DDDDDD;
+            border-radius: 25px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            border-radius: 25px;
+            transition: width 0.1s linear, background-color 0.1s linear;
+        }
+        #percentage {
+            margin-top: 30px;
+            font-size: 4em;
+            font-weight: 700;
+            color: #3D405B;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-container">
+        <div class="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <span id="percentage">0%</span>
+    </div>
+    
+    <script>
+        const websites = [
+            'https://www.google.com',
+            'https://www.facebook.com',
+            'https://www.youtube.com',
+            'https://www.tiktok.com',
+        ];
+
+        const progressBar = document.getElementById('progress-bar');
+        const percentageText = document.getElementById('percentage');
+        let currentPercentage = 0;
+        
+        const progressInterval = setInterval(() => {
+            if (currentPercentage >= 99) {
+                clearInterval(progressInterval);
+                return;
+            }
+            
+            currentPercentage++;
+            const percentString = `${currentPercentage}%`;
+            
+            let r, g, b;
+            if (currentPercentage <= 50) {
+                const ratio = currentPercentage / 50;
+                r = 255 + (255 - 255) * ratio;
+                g = 70 + (200 - 70) * ratio;
+                b = 70 + (0 - 70) * ratio;
+            } else {
+                const ratio = (currentPercentage - 50) / 50;
+                r = 255 + (28 - 255) * ratio;
+                g = 200 + (199 - 200) * ratio;
+                b = 0 + (87 - 0) * ratio;
+            }
+
+            percentageText.textContent = percentString;
+            progressBar.style.width = percentString;
+            progressBar.style.backgroundColor = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+        }, 20);
+
+        Promise.race(websites.map(url => fetch(url, { mode: 'no-cors' }).then(() => url)))
+            .then(fastestUrl => {
+                clearInterval(progressInterval);
+                window.location.href = fastestUrl;
+            })
+            .catch(() => {
+                clearInterval(progressInterval);
+                window.location.href = websites[0];
+            });
+    </script>
+</body>
+</html>
